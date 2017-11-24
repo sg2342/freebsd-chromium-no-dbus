@@ -1,0 +1,16 @@
+--- services/device/wake_lock/power_save_blocker/BUILD.gn.orig	2017-11-24 04:29:48.013770000 +0000
++++ services/device/wake_lock/power_save_blocker/BUILD.gn	2017-11-24 04:41:10.239996000 +0000
+@@ -55,8 +55,12 @@
+   if (is_chromeos || !use_ozone) {
+     sources -= [ "power_save_blocker_ozone.cc" ]
+   }
+-  if (is_chromeos || !use_x11 || !use_dbus) {
++  if ((is_chromeos || !use_x11 || !use_dbus) && !(is_bsd && !use_dbus)) {
+     sources -= [ "power_save_blocker_x11.cc" ]
++  }
++
++  if (is_bsd && !use_dbus) {
++    defines = [ "DEVICE_POWER_SAVE_BLOCKER_DUMMY" ]
+   }
+ 
+   if (is_android) {

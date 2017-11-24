@@ -36,8 +36,6 @@ LIB_DEPENDS=	libspeechd.so:accessibility/speech-dispatcher \
 		libsnappy.so:archivers/snappy \
 		libFLAC.so:audio/flac \
 		libspeex.so:audio/speex \
-		libdbus-1.so:devel/dbus \
-		libdbus-glib-1.so:devel/dbus-glib \
 		libicuuc.so:devel/icu \
 		libjsoncpp.so:devel/jsoncpp \
 		libpci.so:devel/libpci \
@@ -49,11 +47,8 @@ LIB_DEPENDS=	libspeechd.so:accessibility/speech-dispatcher \
 		libpng.so:graphics/png \
 		libwebp.so:graphics/webp \
 		libavcodec.so:multimedia/ffmpeg \
-		libcups.so:print/cups \
 		libharfbuzz.so:print/harfbuzz \
 		libharfbuzz-icu.so:print/harfbuzz-icu \
-		libgcrypt.so:security/libgcrypt \
-		libgnome-keyring.so:security/libgnome-keyring \
 		libnss3.so:security/nss \
 		libexpat.so:textproc/expat2 \
 		libxml2.so:textproc/libxml2 \
@@ -109,7 +104,8 @@ GN_ARGS+=	clang_use_chrome_plugins=false \
 		use_allocator="none" \
 		use_allocator_shim=false \
 		use_aura=true \
-		use_cups=true \
+		use_cups=false \
+		use_dbus=false \
 		use_gtk3=true \
 		use_lld=true \
 		use_sysroot=false \

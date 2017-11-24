@@ -1,6 +1,6 @@
---- chrome/browser/BUILD.gn.orig	2017-06-15 21:03:01.000000000 +0200
-+++ chrome/browser/BUILD.gn	2017-06-18 05:06:25.091310000 +0200
-@@ -2296,7 +2296,7 @@
+--- chrome/browser/BUILD.gn.orig	2017-09-21 22:04:51.000000000 +0000
++++ chrome/browser/BUILD.gn	2017-11-24 04:05:15.678568000 +0000
+@@ -2273,7 +2273,7 @@
      deps += [ "//device/udev_linux" ]
    }
  
@@ -9,16 +9,16 @@
      deps += [ "//third_party/speech-dispatcher" ]
    }
  
-@@ -3721,7 +3721,7 @@
+@@ -3630,7 +3630,7 @@
      }
    }
  
 -  if (is_linux) {
 +  if (is_linux || is_bsd) {
      if (use_aura) {
-       deps += [ "//build/linux:fontconfig" ]
+       deps += [ "//third_party/fontconfig" ]
        if (use_dbus) {
-@@ -3734,7 +3734,7 @@
+@@ -3643,7 +3643,7 @@
      }
    }
  
@@ -27,7 +27,7 @@
      sources += [
        "payments/chrome_payment_request_delegate.cc",
        "payments/chrome_payment_request_delegate.h",
-@@ -3744,7 +3744,7 @@
+@@ -3653,7 +3653,7 @@
      deps += [ "//components/payments/content" ]
    }
  
@@ -36,3 +36,27 @@
      sources += [
        "renderer_context_menu/spelling_options_submenu_observer.cc",
        "renderer_context_menu/spelling_options_submenu_observer.h",
+@@ -3678,14 +3678,21 @@
+       "first_run/upgrade_util_linux.cc",
+       "first_run/upgrade_util_linux.h",
+       "icon_loader_auralinux.cc",
+-      "password_manager/native_backend_kwallet_x.cc",
+-      "password_manager/native_backend_kwallet_x.h",
+       "platform_util_linux.cc",
+       "shell_integration_linux.cc",
+       "shell_integration_linux.h",
+       "speech/tts_linux.cc",
+       "web_applications/web_app_linux.cc",
+     ]
++
++    if (use_dbus) {
++      sources += [
++        "password_manager/native_backend_kwallet_x.cc",
++        "password_manager/native_backend_kwallet_x.h",
++      ]
++    } else {
++      defines = [ "KWALLET_DBUS_DUMMY" ]
++    }
+ 
+     if (enable_native_notifications) {
+       sources += [
