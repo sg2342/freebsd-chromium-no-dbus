@@ -1,7 +1,7 @@
 chromium-no-dbus
 ================
 
-FreeBSD chromium port with optionalized dependency on DBus
+FreeBSD chromium port with optionalized dependency on DBus ans CUPS
 
 see also: https://github.com/DragonFlyBSD/DeltaPorts/pull/664
 
