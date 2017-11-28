@@ -3,7 +3,7 @@
 
 PORTNAME=	chromium
 PORTVERSION=	61.0.3163.100
-PORTREVISION=	3
+PORTREVISION=	4
 CATEGORIES?=	www
 MASTER_SITES=	https://commondatastorage.googleapis.com/chromium-browser-official/
 DISTFILES=	${DISTNAME}${EXTRACT_SUFX}
@@ -75,7 +75,7 @@ USE_LDCONFIG=	${DATADIR}
 USE_PERL5=	build
 USE_XORG=	scrnsaverproto x11 xcb xcomposite xcursor xext xdamage xfixes xi \
 		xproto xrandr xrender xscrnsaver xtst
-USE_GNOME=	atk dconf glib20 gtk30 libxml2 libxslt
+USE_GNOME=	atk glib20 gtk30 libxml2 libxslt
 SHEBANG_FILES=	chrome/tools/build/linux/chrome-wrapper
 ALL_TARGET=	chrome
 INSTALLS_ICONS=	yes
@@ -105,7 +105,9 @@ GN_ARGS+=	clang_use_chrome_plugins=false \
 		use_allocator_shim=false \
 		use_aura=true \
 		use_cups=false \
+		use_gnome_keyring=false \
 		use_dbus=false \
+		use_dconf=false \
 		use_gtk3=true \
 		use_lld=true \
 		use_sysroot=false \
@@ -127,15 +129,31 @@ GN_ARGS+=	google_api_key="AIzaSyBsp9n41JLW8jCokwn7vhoaMejDFRd1mp8" \
 SUB_FILES=	chromium-browser.desktop chrome
 SUB_LIST+=	COMMENT="${COMMENT}"
 
-OPTIONS_DEFINE=	CODECS GCONF KERBEROS DRIVER
+OPTIONS_DEFINE=	CODECS GCONF KERBEROS DRIVER DBUS CUPS
 CODECS_DESC=	Compile and enable patented codecs like H.264
 DRIVER_DESC=	Install chromedriver
 OPTIONS_GROUP=		AUDIO TESTS
 OPTIONS_GROUP_AUDIO=	ALSA PULSEAUDIO SNDIO
 OPTIONS_GROUP_TESTS=	DEBUG TEST
 
-OPTIONS_DEFAULT=	ALSA CODECS DRIVER GCONF KERBEROS
+OPTIONS_DEFAULT=	ALSA CODECS DRIVER GCONF KERBEROS DBUS CUPS
 OPTIONS_SUB=		yes
+
+CUPS_LIB_DEPENDS=	libcups.so:print/cups
+CUPS_VARS=		GN_ARGS+=use_cups=true
+CUPS_VARS_OFF=		GN_ARGS+=use_cups=false
+
+DBUS_VARS=		USE_GNOME+=dconf \
+			GN_ARGS+=use_gnome_keyring=true \
+			GN_ARGS+=use_dbus=true \
+			GN_ARGS+=use_dconf=true
+DBUS_VARS_OFF=		GN_ARGS+=use_dbus=false \
+			GN_ARGS+=use_dconf=false \
+			GN_ARGS+=use_gnome_keyring=false \
+DBUS_LIB_DEPENDS=	libdbus-1.so:devel/dbus \
+			libdbus-glib-1.so:devel/dbus-glib \
+			libgcrypt.so:security/libgcrypt \
+			libgnome-keyring.so:security/libgnome-keyring
 
 ALSA_LIB_DEPENDS=	libasound.so:audio/alsa-lib
 ALSA_RUN_DEPENDS=	${LOCALBASE}/lib/alsa-lib/libasound_module_pcm_oss.so:audio/alsa-plugins \
