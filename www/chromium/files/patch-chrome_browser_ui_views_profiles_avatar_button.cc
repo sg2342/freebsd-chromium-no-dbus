@@ -1,20 +1,20 @@
---- chrome/browser/ui/views/profiles/avatar_button.cc.orig	2017-09-05 21:05:14.000000000 +0200
-+++ chrome/browser/ui/views/profiles/avatar_button.cc	2017-09-06 18:45:09.941798000 +0200
-@@ -194,7 +194,7 @@
-       label()->font_list().DeriveWithHeightUpperBound(kDisplayFontHeight));
- 
-   bool apply_ink_drop = IsCondensible();
--#if defined(OS_LINUX)
-+#if defined(OS_LINUX) || defined(OS_BSD)
-   DCHECK_EQ(AvatarButtonStyle::THEMED, button_style);
-   apply_ink_drop = true;
- #endif
-@@ -202,7 +202,7 @@
-   if (apply_ink_drop) {
+--- chrome/browser/ui/views/profiles/avatar_button.cc.orig	2018-06-13 00:10:08.000000000 +0200
++++ chrome/browser/ui/views/profiles/avatar_button.cc	2018-07-18 22:53:21.770071000 +0200
+@@ -250,7 +250,7 @@
+   } else if (apply_ink_drop) {
      SetInkDropMode(InkDropMode::ON);
      SetFocusPainter(nullptr);
 -#if defined(OS_LINUX)
 +#if defined(OS_LINUX) || defined(OS_BSD)
-     constexpr int kIconSize = 16;
      set_ink_drop_base_color(SK_ColorWHITE);
-     SetBorder(base::MakeUnique<AvatarButtonThemedBorder>());
+     SetBorder(std::make_unique<AvatarButtonThemedBorder>());
+     generic_avatar_ =
+@@ -544,7 +544,7 @@
+ #endif
+ }
+ bool AvatarButton::ShouldApplyInkDrop() const {
+-#if defined(OS_LINUX)
++#if defined(OS_LINUX) || defined(OS_BSD)
+   DCHECK_EQ(AvatarButtonStyle::THEMED, button_style_);
+   return true;
+ #elif defined(OS_MACOSX)

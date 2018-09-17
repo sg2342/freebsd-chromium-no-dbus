@@ -1,5 +1,5 @@
---- third_party/angle/src/gpu_info_util/SystemInfo_x11.cpp.orig	2017-09-10 02:37:35.309513000 +0200
-+++ third_party/angle/src/gpu_info_util/SystemInfo_x11.cpp	2017-09-10 02:48:01.225261000 +0200
+--- third_party/angle/src/gpu_info_util/SystemInfo_x11.cpp.orig	2018-08-08 12:13:09.000000000 -0700
++++ third_party/angle/src/gpu_info_util/SystemInfo_x11.cpp	2018-08-20 09:34:48.052352000 -0700
 @@ -8,6 +8,8 @@
  
  #include "gpu_info_util/SystemInfo_internal.h"
@@ -9,7 +9,7 @@
  #include <X11/Xlib.h>
  
  #include "common/debug.h"
-@@ -18,8 +20,40 @@
+@@ -18,8 +20,43 @@
  #error SystemInfo_x11.cpp compiled without GPU_INFO_USE_X11
  #endif
  
@@ -33,16 +33,19 @@
 +        (PFNGLXQUERYRENDERERINTEGERMESAPROC) glXGetProcAddressARB((const GLubyte *)
 +        "glXQueryRendererIntegerMESA");
 +
++    if (!queryInteger)
++        return false;
++
 +    bool vendor_ret =
 +        queryInteger(display, 0, 0, GLX_RENDERER_VENDOR_ID_MESA, vid);
-+    bool_device_ret =
++    bool device_ret =
 +        queryInteger(display, 0, 0, GLX_RENDERER_DEVICE_ID_MESA, did);
 +
 +    if (vendor_ret && device_ret) {
 +        GPUDeviceInfo info;
 +        info.vendorId = vid[0];
 +        info.deviceId = did[0];
-+        device->push_back(info);
++        devices->push_back(info);
 +    }
 +
 +    return true;
