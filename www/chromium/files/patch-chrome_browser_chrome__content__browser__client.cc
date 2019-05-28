@@ -1,24 +1,24 @@
---- chrome/browser/chrome_content_browser_client.cc.orig	2018-08-01 00:08:29.000000000 +0200
-+++ chrome/browser/chrome_content_browser_client.cc	2018-08-04 14:22:56.785429000 +0200
-@@ -309,7 +309,7 @@
- #include "chromeos/chromeos_switches.h"
+--- chrome/browser/chrome_content_browser_client.cc.orig	2019-04-30 22:22:32 UTC
++++ chrome/browser/chrome_content_browser_client.cc
+@@ -411,7 +411,7 @@
  #include "components/user_manager/user_manager.h"
  #include "services/service_manager/public/mojom/interface_provider_spec.mojom.h"
+ #include "services/ws/common/switches.h"
 -#elif defined(OS_LINUX)
 +#elif defined(OS_LINUX) || defined(OS_BSD)
  #include "chrome/browser/chrome_browser_main_linux.h"
  #elif defined(OS_ANDROID)
  #include "base/android/application_status_listener.h"
-@@ -347,7 +347,7 @@
- #include "chrome/common/importer/profile_import.mojom.h"
+@@ -457,7 +457,7 @@
+ #include "components/services/patch/public/interfaces/constants.mojom.h"
  #endif
  
--#if defined(OS_LINUX) || defined(OS_WIN)
-+#if defined(OS_LINUX) || defined(OS_WIN) || defined(OS_BSD)
- #include "chrome/browser/webshare/share_service_impl.h"
+-#if defined(OS_WIN) || defined(OS_MACOSX) || \
++#if defined(OS_WIN) || defined(OS_MACOSX) || defined(OS_BSD) || \
+     (defined(OS_LINUX) && !defined(OS_CHROMEOS))
+ #include "chrome/browser/browser_switcher/browser_switcher_navigation_throttle.h"
  #endif
- 
-@@ -361,7 +361,7 @@
+@@ -474,7 +474,7 @@
  #include "chrome/browser/ui/views/chrome_browser_main_extra_parts_views.h"
  #endif
  
@@ -27,16 +27,16 @@
  #include "chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.h"
  #endif
  
-@@ -1061,7 +1061,7 @@
+@@ -1170,7 +1170,7 @@ content::BrowserMainParts* ChromeContentBrowserClient:
  #elif defined(OS_CHROMEOS)
    main_parts = new chromeos::ChromeBrowserMainPartsChromeos(
-       parameters, std::move(service_manifest_data_pack_));
+       parameters, chrome_feature_list_creator_);
 -#elif defined(OS_LINUX)
 +#elif defined(OS_LINUX) || defined(OS_BSD)
-   main_parts = new ChromeBrowserMainPartsLinux(
-       parameters, std::move(service_manifest_data_pack_));
+   main_parts =
+       new ChromeBrowserMainPartsLinux(parameters, chrome_feature_list_creator_);
  #elif defined(OS_ANDROID)
-@@ -1081,7 +1081,7 @@
+@@ -1190,7 +1190,7 @@ content::BrowserMainParts* ChromeContentBrowserClient:
    // Construct additional browser parts. Stages are called in the order in
    // which they are added.
  #if defined(TOOLKIT_VIEWS)
@@ -45,16 +45,16 @@
    main_parts->AddParts(new ChromeBrowserMainExtraPartsViewsLinux());
  #else
    main_parts->AddParts(new ChromeBrowserMainExtraPartsViews());
-@@ -1823,7 +1823,7 @@
+@@ -1994,7 +1994,7 @@ void ChromeContentBrowserClient::AppendExtraCommandLin
      command_line->AppendSwitchASCII(switches::kMetricsClientID,
                                      client_info->client_id);
    }
 -#elif defined(OS_POSIX)
 +#elif defined(OS_POSIX) && !defined(OS_BSD)
-   if (breakpad::IsCrashReporterEnabled()) {
-     std::string switch_value;
-     std::unique_ptr<metrics::ClientInfo> client_info =
-@@ -3177,7 +3177,7 @@
+ #if defined(OS_ANDROID)
+   bool enable_crash_reporter = true;
+ #else
+@@ -3529,7 +3529,7 @@ void ChromeContentBrowserClient::GetAdditionalFileSyst
    }
  }
  
@@ -63,12 +63,21 @@
  void ChromeContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
      const base::CommandLine& command_line,
      int child_process_id,
-@@ -3892,7 +3892,7 @@
- #if defined(OS_ANDROID)
-   frame_interfaces_parameterized_->AddInterface(base::Bind(
-       &ForwardToJavaWebContentsRegistry<blink::mojom::ShareService>));
--#elif defined(OS_LINUX) || defined(OS_WIN)
-+#elif defined(OS_LINUX) || defined(OS_WIN) || defined(OS_BSD)
-   frame_interfaces_->AddInterface(base::Bind(&ShareServiceImpl::Create));
- #endif
+@@ -4281,7 +4281,7 @@ ChromeContentBrowserClient::CreateThrottlesForNavigati
+             handle));
+   }
  
+-#if defined(OS_WIN) || defined(OS_MACOSX) || \
++#if defined(OS_WIN) || defined(OS_MACOSX) || defined(OS_BSD) || \
+     (defined(OS_LINUX) && !defined(OS_CHROMEOS))
+   std::unique_ptr<content::NavigationThrottle> browser_switcher_throttle =
+       browser_switcher::BrowserSwitcherNavigationThrottle ::
+@@ -5115,7 +5115,7 @@ std::unique_ptr<content::OverlayWindow>
+ ChromeContentBrowserClient::CreateWindowForPictureInPicture(
+     content::PictureInPictureWindowController* controller) {
+ #if defined(OS_WIN) || defined(OS_MACOSX) || defined(OS_LINUX) || \
+-    defined(OS_CHROMEOS)
++    defined(OS_CHROMEOS) || defined(OS_BSD)
+   // Note: content::OverlayWindow::Create() is defined by platform-specific
+   // implementation in chrome/browser/ui/views. This layering hack, which goes
+   // through //content and ContentBrowserClient, allows us to work around the
